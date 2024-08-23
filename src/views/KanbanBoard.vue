@@ -1,72 +1,93 @@
 <template>
-    <div class="kanban-board">
-      <BoardColumn
-        v-for="(column, index) in columns"
-        :key="column.id"
-        :title="column.title"
-        :tasks="column.tasks"
-        @dragstart="onDragStart"
-        @drop="onDrop(column, index)"
-      />
-    </div>
-  </template>
-  
-  <script>
-  import BoardColumn from '../components/BoardColumn.vue';
-  
-  export default {
-    name: 'KanbanBoard',
-    components: {
-      BoardColumn
+  <div class="kanban-board">
+    <BoardColumn
+      v-for="(column, index) in columns"
+      :key="index"
+      :title="column.name"
+      :tasks="column.tasks"
+      @update-tasks="updateTasks"
+      @change-tasks="changeTasks"
+      @update-description="updateTaskDescription"
+      @update-tags="updateTaskTags"
+      @update-name="updateTaskName"
+    />
+  </div>
+</template>
+
+<script>
+import BoardColumn from './../components/BoardColumn.vue';
+
+export default {
+  name: 'KanbanBoard',
+  components: {
+    BoardColumn
+  },
+  data() {
+    return {
+      columns: [
+        {
+          name: 'To Do',
+          tasks: [
+            { id: 1, name: 'Task 1', description: '', tags: [{ name: 'Urgent', color: '#eb5a46' }] },
+            { id: 2, name: 'Task 2', description: '', tags: [{ name: 'Low', color: '#0079bf' }] }
+          ]
+        },
+        {
+          name: 'In Progress',
+          tasks: [
+            { id: 3, name: 'Task 3', description: '', tags: [{ name: 'Medium', color: '#ff9f1a' }] }
+          ]
+        },
+        {
+          name: 'Done',
+          tasks: [
+            { id: 4, name: 'Task 4', description: '', tags: [{ name: 'Completed', color: '#f2d600' }] }
+          ]
+        }
+      ]
+    };
+  },
+  methods: {
+    updateTasks(event) {
+      console.log('Tasks updated', event);
     },
-    data() {
-      return {
-        columns: [
-          { id: 1, title: 'To Do', tasks: [{ id: 1, title: 'Task 1' }, { id: 2, title: 'Task 2' }] },
-          { id: 2, title: 'In Progress', tasks: [{ id: 3, title: 'Task 3' }] },
-          { id: 3, title: 'Done', tasks: [{ id: 4, title: 'Task 4' }] }
-        ],
-        draggedTask: null,
-        draggedColumnIndex: null,
-        taskActive: {}
-      };
+    changeTasks(event) {
+      console.log('Tasks changed', event);
     },
-    methods: {
-      onDragStart(task) {
-        if(task)
-          console.log(task)
-        
-          this.taskActive = task;
-      },
-      onDrop(targetColumn) {
-        console.log(this.$emit('drop'))
-        console.log(this.taskActive)
-        if (this.draggedTask && this.draggedTask !== targetColumn.tasks) {
-          // Remueve la tarea de la columna original
-          this.columns.forEach(column => {
-            const index = column.tasks.indexOf(this.draggedTask);
-            if (index > -1) {
-              column.tasks.splice(index, 1);
-            }
-          });
-          // Añade la tarea a la nueva columna
-          console.log(this.draggedTask)
-          targetColumn.tasks.push(this.draggedTask);
-          this.draggedTask = null;
+    updateTaskDescription(taskId, description) {
+      for (const column of this.columns) {
+        const task = column.tasks.find(task => task.id === taskId);
+        if (task) {
+          task.description = description;
+          break;
+        }
+      }
+    },
+    updateTaskTags(taskId, tags) {
+      for (const column of this.columns) {
+        const task = column.tasks.find(task => task.id === taskId);
+        if (task) {
+          task.tags = tags;
+          break;
+        }
+      }
+    },
+    updateTaskName(taskId, name) {
+      for (const column of this.columns) {
+        const task = column.tasks.find(task => task.id === taskId);
+        if (task) {
+          task.name = name;
+          break;
         }
       }
     }
-  };
-  </script>
-  
-  <style scoped>
-  .kanban-board {
-    display: flex;
-    align-items: flex-start;
-    overflow-x: auto;
-    padding: 10px;
-    background-color: #0079bf;
-    border-radius: 3px;
   }
-  </style>
-  
+};
+</script>
+
+<style scoped>
+.kanban-board {
+  display: flex;
+  flex-direction: row;
+}
+</style>

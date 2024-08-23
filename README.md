@@ -1,4 +1,4 @@
-# kanban-board
+# project
 
 ## Project setup
 ```
